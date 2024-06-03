@@ -25,7 +25,7 @@ export class UsersController {
   }
 
   @Get('find/:id')
-  async findOne(@Param('id') id) {
+  async findOne(@Param('id') id): Promise<Omit<User, 'password'>> {
     console.log('findOne', id);
     return this.usersService.findOne(id);
   }

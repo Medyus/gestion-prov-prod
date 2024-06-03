@@ -49,7 +49,7 @@ export class UsersService {
     return users;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Omit<User, 'password'>> {
     const user = await this.findUserById(id);
     return user;
   }
