@@ -8,6 +8,7 @@ import { UserNotDeletedException } from '../../common/exceptions/user-not-delete
 import { EmailAlreadyExistsException } from '../../common/exceptions/email-already-exists';
 import { EmailNotFoundException } from '../../common/exceptions/email-not-found';
 import { UserNotFoundException } from '../../common/exceptions/user-not-found';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,7 +25,7 @@ export class UsersService {
     return createUser.save();
   }
 
-  async deleteByEmail(email: string) {
+  async deleteByEmail(email: string): Promise<void | Object> {
     const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
       throw new EmailNotFoundException();
@@ -32,12 +33,20 @@ export class UsersService {
     return await this.deleteUserById(user.id);
   }
 
-  async deleteById(id: string) {
+  async deleteById(id: string): Promise<void | Object> {
     const user = await this.findUserById(id);
     return await this.deleteUserById(user.id);
   }
 
-  async updateUser() {}
+  async updateById(id: string, updateUserDto: UpdateUserDto): Promise<Object> {
+    const userFind = await this.findUserById(id);
+    const password = updateUserDto.password ? await bcrypt.hash(updateUserDto.password, 10) : null;
+    const user = await this.userModel
+      .findByIdAndUpdate(userFind.id, { ...updateUserDto, ...(password && { password: password }) }, { new: true })
+      .select('-password')
+      .exec();
+    return { message: 'Usuario Modificado', user };
+  }
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userModel.findOne({ email }).exec();
@@ -54,16 +63,15 @@ export class UsersService {
     return user;
   }
 
-  async findUserById(id: string) {
+  async findUserById(id: string): Promise<User> {
     const user = await this.userModel.findById(id).select('-password').exec();
-    console.log('findUserById', user);
     if (!user) {
       throw new UserNotFoundException();
     }
     return user;
   }
 
-  async deleteUserById(id: string) {
+  async deleteUserById(id: string): Promise<void | Object> {
     const result = await this.userModel.findByIdAndDelete(id).exec();
     return result ? { message: 'Usuario borrado' } : new UserNotDeletedException();
   }

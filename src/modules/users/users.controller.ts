@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { User } from './schema/user.schema';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -12,13 +13,6 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Get(':email')
-  deleteByEmail(@Param('email') params) {
-    console.log('deleteByEmail', params);
-    return this.usersService.deleteByEmail(params.email);
-  }
-
-  // @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<Omit<User, 'password'>[]> {
     return await this.usersService.findAll();
@@ -26,13 +20,25 @@ export class UsersController {
 
   @Get('find/:id')
   async findOne(@Param('id') id): Promise<Omit<User, 'password'>> {
-    console.log('findOne', id);
     return this.usersService.findOne(id);
   }
-  
+
+  // @UseGuards(JwtAuthGuard)
+  @Get(':email')
+  deleteByEmail(@Param('email') params): Promise<void | Object>{
+    return this.usersService.deleteByEmail(params.email);
+  }
+
+  // @UseGuards(JwtAuthGuard)
   @Get('delete/:id')
-  deleteById(@Param('id') id) {
-    console.log('deleteById', id);
+  deleteById(@Param('id') id): Promise<void | Object>{
     return this.usersService.deleteById(id);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Patch('update/:id')
+  updateById(@Param('id') id, @Body() updateUserDto: UpdateUserDto): Promise<Object> {
+    console.log('updateById', id);
+    return this.usersService.updateById(id, updateUserDto);
   }
 }
