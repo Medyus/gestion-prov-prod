@@ -22,8 +22,8 @@ export class ProductsController {
 
   // @UseGuards(JwtAuthGuard)
   @Patch('update/:id')
-  updateById(@Param('id') id, @Body() createProductDto: CreateProductDto): Promise<Object> {
+  updateById(@Param('id') id, @Body() updateProductDto: UpdateProductDto): Promise<Object> {
     console.log('updateById', id);
-    return this.productsService.updateById(id, createProductDto);
+    return this.productsService.updateById(id, updateProductDto);
   }
 }

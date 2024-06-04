@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsObject } from 'class-validator';
 
-export class CreateProductDto {
+export class CreateProviderDto {
   @IsString()
   @IsNotEmpty()
   readonly name: string;
@@ -10,5 +10,5 @@ export class CreateProductDto {
   readonly type: string;
 
   @IsObject()
-  readonly providers: string[];
+  readonly products: string[];
 }
