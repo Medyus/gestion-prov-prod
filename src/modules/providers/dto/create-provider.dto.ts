@@ -10,5 +10,5 @@ export class CreateProviderDto {
   readonly type: string;
 
   @IsObject()
-  readonly products: string[];
+  products: string[];
 }

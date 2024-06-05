@@ -10,7 +10,6 @@ import { ProvidersService } from '../providers/providers.service';
 
 @Injectable()
 export class ProductsService {
-
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
     @Inject(forwardRef(() => ProvidersService)) private providersService: ProvidersService
@@ -25,20 +24,21 @@ export class ProductsService {
     const result = [];
     const add = [];
     if (createProductDto.providers.length > 0) {
-      createProductDto.providers.forEach(async (provider, index) => {
+      for (const { index, provider } of createProductDto.providers.map((provider, index) => ({ index, provider }))) {
         const providerFind = await this.providersService.findByName(provider);
-        if (providerFind) {
-          result.push({ provider: providerFind.name, message: 'Proveedor agregado' });
+        if (providerFind != null) {
+          result.push({ provider: providerFind.name, result: 'Proveedor agregado' });
           add.push(provider);
         } else {
-          result.push({ provider: provider, message: 'Proveedor no existe' });
+          result.push({ provider: provider, result: 'Proveedor no existe' });
           createProductDto.providers.splice(index, 1);
         }
-      });
+      }
     }
+    createProductDto.providers = add;
     const create = new this.productModel({ ...createProductDto });
-    await create.save();
-    return result;
+    const prod = await create.save();
+    return { message: 'Producto guardado', providers_check: result, insert: prod };
   }
 
   async findAll(): Promise<Product[]> {

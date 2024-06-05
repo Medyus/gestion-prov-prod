@@ -24,20 +24,21 @@ export class ProvidersService {
     const result = [];
     const add = [];
     if (createProviderDto.products.length > 0) {
-      createProviderDto.products.forEach(async (product, index) => {
+      for (const { index, product } of createProviderDto.products.map((product, index) => ({ index, product }))) {
         const productFind = await this.productsService.findByName(product);
-        if (productFind) {
+        if (productFind != null) {
           result.push({ product: productFind.name, message: 'Producto agregado' });
           add.push(product);
         } else {
           result.push({ product: product, message: 'Producto no existe' });
           createProviderDto.products.splice(index, 1);
         }
-      });
+      }
     }
+    createProviderDto.products = add;
     const create = new this.providerModel({ ...createProviderDto });
-    await create.save();
-    return result;
+    const prov = await create.save();
+    return { message: 'Proveedor guardado', providers: result, insert: prov };
   }
 
   async findAll(): Promise<Provider[]> {
