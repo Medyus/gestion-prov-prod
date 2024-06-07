@@ -16,26 +16,12 @@ export class ProvidersService {
   ) {}
 
   async create(createProviderDto: CreateProviderDto) {
-    const providerFind = await this.providerModel.findOne({ name: createProviderDto.name }).exec();
-    if (providerFind) {
+    const productFind = await this.providerModel.findOne({ name: createProviderDto.name }).exec();
+    if (productFind) {
       throw new ProviderAlreadyExistsException();
     }
-
-    const result = [];
-    const add = [];
-    if (createProviderDto.products.length > 0) {
-      for (const { index, product } of createProviderDto.products.map((product, index) => ({ index, product }))) {
-        const productFind = await this.productsService.findByName(product);
-        if (productFind != null) {
-          result.push({ product: productFind.name, message: 'Producto agregado' });
-          add.push(product);
-        } else {
-          result.push({ product: product, message: 'Producto no existe' });
-          createProviderDto.products.splice(index, 1);
-        }
-      }
-    }
-    createProviderDto.products = add;
+    const { providerDto, result } = await this.checkUpdate(createProviderDto);
+    createProviderDto = providerDto;
     const create = new this.providerModel({ ...createProviderDto });
     const prov = await create.save();
     return { message: 'Proveedor guardado', providers: result, insert: prov };
@@ -47,9 +33,14 @@ export class ProvidersService {
   }
 
   async updateById(id, updateProviderDto: UpdateProviderDto): Promise<Object> {
-    const providerFind = await this.findProviderById(id);
-    const provider = await this.providerModel.findByIdAndUpdate(providerFind.id, { ...updateProviderDto }, { new: true }).exec();
-    return { message: 'Proveedor Modificado', provider };
+    let { providerDto, result } = { providerDto: null, result: [] };
+    const productFind = await this.findProviderById(id);
+    if (updateProviderDto.products.length > 0) {
+      ({ providerDto, result } = await this.checkUpdate(updateProviderDto));
+      updateProviderDto.products = providerDto.products;
+    }
+    const provider = await this.providerModel.findByIdAndUpdate(productFind.id, { ...updateProviderDto }, { new: true }).exec();
+    return { message: 'Proveedor Modificado', products_check: result, update: provider };
   }
 
   async findProviderById(id: string): Promise<Provider> {
@@ -63,5 +54,30 @@ export class ProvidersService {
   async findByName(name: string): Promise<Provider> {
     const provider = await this.providerModel.findOne({ name: name }).exec();
     return provider;
+  }
+  async checkUpdate(providerDto: any) {
+    const result = [];
+    const add = [];
+    if (providerDto.products.length > 0) {
+      for (let i = 0; i < providerDto.products.length; i++) {
+        let product = providerDto.products[i];
+        const productFind = await this.productsService.findByName(product);
+        if (productFind != null) {
+          if (!add.includes(product)) {
+            result.push({ provider: productFind.name, result: 'Producto agregado' });
+            add.push(productFind.name);
+          } else {
+            result.push({ provider: productFind.name, result: 'Producto repetido' });
+            providerDto.products.splice(i, 1);
+            i--;
+          }
+        } else {
+          result.push({ product: product, result: 'Producto no existe' });
+          providerDto.products.splice(i, 1);
+          i--;
+        }
+      }
+    }
+    return { providerDto, result };
   }
 }

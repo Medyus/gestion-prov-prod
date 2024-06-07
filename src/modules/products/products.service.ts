@@ -20,22 +20,8 @@ export class ProductsService {
     if (productFind) {
       throw new ProductAlreadyExistsException();
     }
-
-    const result = [];
-    const add = [];
-    if (createProductDto.providers.length > 0) {
-      for (const { index, provider } of createProductDto.providers.map((provider, index) => ({ index, provider }))) {
-        const providerFind = await this.providersService.findByName(provider);
-        if (providerFind != null) {
-          result.push({ provider: providerFind.name, result: 'Proveedor agregado' });
-          add.push(provider);
-        } else {
-          result.push({ provider: provider, result: 'Proveedor no existe' });
-          createProductDto.providers.splice(index, 1);
-        }
-      }
-    }
-    createProductDto.providers = add;
+    const { productDto, result } = await this.checkUpdate(createProductDto);
+    createProductDto = productDto;
     const create = new this.productModel({ ...createProductDto });
     const prod = await create.save();
     return { message: 'Producto guardado', providers_check: result, insert: prod };
@@ -47,9 +33,14 @@ export class ProductsService {
   }
 
   async updateById(id, updateProductDto: UpdateProductDto): Promise<Object> {
+    let { productDto, result } = { productDto: null, result: [] };
     const productFind = await this.findProductById(id);
+    if (updateProductDto.providers.length > 0) {
+      ({ productDto, result } = await this.checkUpdate(updateProductDto));
+      updateProductDto.providers = productDto.providers;
+    }
     const product = await this.productModel.findByIdAndUpdate(productFind.id, { ...updateProductDto }, { new: true }).exec();
-    return { message: 'Producto Modificado', product };
+    return { message: 'Producto Modificado', providers_check: result, update: product };
   }
 
   async findProductById(id: string): Promise<Product> {
@@ -63,5 +54,31 @@ export class ProductsService {
   async findByName(name: string): Promise<Product> {
     const product = await this.productModel.findOne({ name: name }).exec();
     return product;
+  }
+
+  async checkUpdate(productDto: any) {
+    const result = [];
+    const add = [];
+    if (productDto.providers.length > 0) {
+      for (let i = 0; i < productDto.providers.length; i++) {
+        let provider = productDto.providers[i];
+        const providerFind = await this.providersService.findByName(provider);
+        if (providerFind != null) {
+          if (!add.includes(provider)) {
+            result.push({ provider: providerFind.name, result: 'Proveedor agregado' });
+            add.push(providerFind.name);
+          } else {
+            result.push({ provider: providerFind.name, result: 'Proveedor repetido' });
+            productDto.providers.splice(i, 1);
+            i--;
+          }
+        } else {
+          result.push({ provider: provider, result: 'Proveedor no existe' });
+          productDto.providers.splice(i, 1);
+          i--;
+        }
+      }
+    }
+    return { productDto, result };
   }
 }
