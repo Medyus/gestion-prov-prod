@@ -3,11 +3,20 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './schema/product.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ProductAlreadyExistsException } from 'src/common/exceptions/product-already-exists';
-import { ProductNotFoundException } from 'src/common/exceptions/product-not-found';
+import { ProductAlreadyExistsException } from '../../common/exceptions/product-already-exists';
+import { ProductNotFoundException } from '../../common/exceptions/product-not-found';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProvidersService } from '../providers/providers.service';
-import { ProductNotDeletedException } from 'src/common/exceptions/product-not-deleted';
+import { ProductNotDeletedException } from '../../common/exceptions/product-not-deleted';
+import { ProductNotValidException } from '../../common/exceptions/product-not-valid';
+
+enum typeProduct {
+  'electronico',
+  'ropa',
+  'alimentos',
+  'herramientas',
+  'juguetes',
+}
 
 @Injectable()
 export class ProductsService {
@@ -35,8 +44,11 @@ export class ProductsService {
 
   async updateById(id, updateProductDto: UpdateProductDto): Promise<Object> {
     let { productDto, result } = { productDto: null, result: [] };
+    if (updateProductDto.type && !(updateProductDto.type in typeProduct)) {
+      throw new ProductNotValidException();
+    }
     const productFind = await this.findProductById(id);
-    if (updateProductDto.providers.length > 0) {
+    if (updateProductDto.providers && updateProductDto.providers.length > 0) {
       ({ productDto, result } = await this.checkUpdate(updateProductDto));
       updateProductDto.providers = productDto.providers;
     }

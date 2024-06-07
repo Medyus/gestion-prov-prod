@@ -3,11 +3,19 @@ import { CreateProviderDto } from './dto/create-provider.dto';
 import { Provider } from './schema/provider.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ProviderAlreadyExistsException } from 'src/common/exceptions/provider-already-exists';
-import { ProviderNotFoundException } from 'src/common/exceptions/provider-not-found';
+import { ProviderAlreadyExistsException } from '../../common/exceptions/provider-already-exists';
+import { ProviderNotFoundException } from '../../common/exceptions/provider-not-found';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { ProductsService } from '../products/products.service';
-import { ProviderNotDeletedException } from 'src/common/exceptions/provider-not-deleted';
+import { ProviderNotDeletedException } from '../../common/exceptions/provider-not-deleted';
+import { ProviderNotValidException } from '../../common/exceptions/provider-not-valid';
+
+enum typeProvider {
+  'mayorista',
+  'minorista',
+  'distribuidor',
+  'fabricante',
+}
 
 @Injectable()
 export class ProvidersService {
@@ -35,8 +43,12 @@ export class ProvidersService {
 
   async updateById(id, updateProviderDto: UpdateProviderDto): Promise<Object> {
     let { providerDto, result } = { providerDto: null, result: [] };
+    console.log('sssssssssssssssssss', typeProvider[updateProviderDto.type])
+    if (updateProviderDto.type && !(updateProviderDto.type in typeProvider)) {
+      throw new ProviderNotValidException();
+    }
     const productFind = await this.findProviderById(id);
-    if (updateProviderDto.products.length > 0) {
+    if (updateProviderDto.products && updateProviderDto.products.length > 0) {
       ({ providerDto, result } = await this.checkUpdate(updateProviderDto));
       updateProviderDto.products = providerDto.products;
     }

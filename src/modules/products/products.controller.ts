@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseFilters } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductsService } from './products.service';
 import { Product } from './schema/product.schema';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ErrorFilter } from '../../common/catch/error-filter';
 
 @Controller('products')
 export class ProductsController {
@@ -10,6 +11,7 @@ export class ProductsController {
 
    // @UseGuards(JwtAuthGuard)
   @Post()
+  @UseFilters(ErrorFilter)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -23,7 +25,6 @@ export class ProductsController {
   // @UseGuards(JwtAuthGuard)
   @Patch('update/:id')
   updateById(@Param('id') id, @Body() updateProductDto: UpdateProductDto): Promise<Object> {
-    console.log('updateById', id);
     return this.productsService.updateById(id, updateProductDto);
   }
 

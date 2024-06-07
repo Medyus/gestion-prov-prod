@@ -3,14 +3,13 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Provider extends Document {
-
-  @Prop({required: true, unique: true})
+  @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({required: true})
+  @Prop({ type: String, enum: { values: ['mayorista', 'minorista'], message: 'Tipo de proveedor inválido' } })
   type: string;
 
-  @Prop({required: false })
+  @Prop({ required: false })
   products: string[];
 }
 export const ProviderSchema = SchemaFactory.createForClass(Provider);
