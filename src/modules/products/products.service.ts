@@ -7,6 +7,7 @@ import { ProductAlreadyExistsException } from 'src/common/exceptions/product-alr
 import { ProductNotFoundException } from 'src/common/exceptions/product-not-found';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProvidersService } from '../providers/providers.service';
+import { ProductNotDeletedException } from 'src/common/exceptions/product-not-deleted';
 
 @Injectable()
 export class ProductsService {
@@ -54,6 +55,12 @@ export class ProductsService {
   async findByName(name: string): Promise<Product> {
     const product = await this.productModel.findOne({ name: name }).exec();
     return product;
+  }
+
+  async deleteById(id: string): Promise<void | Object> {
+    const product = await this.findProductById(id);
+    const result = await this.productModel.findByIdAndDelete(id).exec();
+    return result ? { message: 'Producto borrado' } : new ProductNotDeletedException();
   }
 
   async checkUpdate(productDto: any) {

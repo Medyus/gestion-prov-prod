@@ -26,4 +26,10 @@ export class ProductsController {
     console.log('updateById', id);
     return this.productsService.updateById(id, updateProductDto);
   }
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('delete/:id')
+  deleteById(@Param('id') id): Promise<void | Object>{
+    return this.productsService.deleteById(id);
+  }
 }

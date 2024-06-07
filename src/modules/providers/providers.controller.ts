@@ -26,4 +26,10 @@ export class ProvidersController {
      console.log('updateById', id);
      return this.providerService.updateById(id, updateProviderDto);
    }
+
+   // @UseGuards(JwtAuthGuard)
+   @Get('delete/:id')
+   deleteById(@Param('id') id): Promise<void | Object>{
+     return this.providerService.deleteById(id);
+   }
 }

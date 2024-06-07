@@ -7,6 +7,7 @@ import { ProviderAlreadyExistsException } from 'src/common/exceptions/provider-a
 import { ProviderNotFoundException } from 'src/common/exceptions/provider-not-found';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { ProductsService } from '../products/products.service';
+import { ProviderNotDeletedException } from 'src/common/exceptions/provider-not-deleted';
 
 @Injectable()
 export class ProvidersService {
@@ -55,6 +56,13 @@ export class ProvidersService {
     const provider = await this.providerModel.findOne({ name: name }).exec();
     return provider;
   }
+
+  async deleteById(id: string): Promise<void | Object> {
+    const provider = await this.findProviderById(id);
+    const result = await this.providerModel.findByIdAndDelete(id).exec();
+    return result ? { message: 'Proveedor borrado' } : new ProviderNotDeletedException();
+  }
+
   async checkUpdate(providerDto: any) {
     const result = [];
     const add = [];
