@@ -1,19 +1,26 @@
-## Description
+## Descripción
 
 Gestión proovedores y productos
 
 
-## Installation
+# Instrucciones
+
+## Instalación
 
 ```bash
 $ npm install
 ```
 
-# dev mode
+## Iniciar proyecto
 ```bash
 $ npm run start:dev
 ```
 
-# test
+## Postman
 
-Abrir Postman e importar archivo que esta en carpeta test/gesspp.postman_collection.json
+* Importar archivo a postman ubicado en carpeta:
+```bash
+test/gesspp.postman_collection.json
+```
+## Primera API
+* Abrir API "login", la cual creará el token que será usado en las otras APIs

@@ -25,19 +25,19 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get(':email')
   deleteByEmail(@Param('email') params): Promise<void | Object>{
     return this.usersService.deleteByEmail(params.email);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('delete/:id')
   deleteById(@Param('id') id): Promise<void | Object>{
     return this.usersService.deleteById(id);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch('update/:id')
   updateById(@Param('id') id, @Body() updateUserDto: UpdateUserDto): Promise<Object> {
     return this.usersService.updateById(id, updateUserDto);
