@@ -44,6 +44,7 @@ export class ProductsService {
 
   async updateById(id, updateProductDto: UpdateProductDto): Promise<Object> {
     let { productDto, result } = { productDto: null, result: [] };
+    // Se valida el enum a mano, por que no toma en cuenta el enum al usar partialtype
     if (updateProductDto.type && !(updateProductDto.type in typeProduct)) {
       throw new ProductNotValidException();
     }

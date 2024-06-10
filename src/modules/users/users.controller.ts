@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { User } from './schema/user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -18,6 +19,7 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('find/:id')
   async findOne(@Param('id') id): Promise<Omit<User, 'password'>> {
     return this.usersService.findOne(id);

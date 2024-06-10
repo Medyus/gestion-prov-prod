@@ -43,7 +43,7 @@ export class ProvidersService {
 
   async updateById(id, updateProviderDto: UpdateProviderDto): Promise<Object> {
     let { providerDto, result } = { providerDto: null, result: [] };
-    console.log('sssssssssssssssssss', typeProvider[updateProviderDto.type])
+    // Se valida el enum a mano, por que no toma en cuenta el enum al usar partialtype
     if (updateProviderDto.type && !(updateProviderDto.type in typeProvider)) {
       throw new ProviderNotValidException();
     }

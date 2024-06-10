@@ -1,6 +1,6 @@
 ## Description
 
-Gestion proovedores y productos
+Gestión proovedores y productos
 
 
 ## Installation
@@ -16,4 +16,4 @@ $ npm run start:dev
 
 # test
 
-Abrir Postman y exportar archivo que esta en carpeta test, llamado gespp
+Abrir Postman e importar archivo que esta en carpeta test/gesspp.postman_collection.json
